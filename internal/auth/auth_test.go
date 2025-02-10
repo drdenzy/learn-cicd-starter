@@ -57,7 +57,7 @@ func TestGetAPIKey(t *testing.T) {
 		},
 		{
 			name:          "valid api key with leading spaces",
-			headers:       http.Header{"Authorization": []string{"ApiKey 12345"}},
+			headers:       http.Header{"Authorization": []string{"   ApiKey 12345"}},
 			expectedKey:   "",
 			expectedError: errors.New("malformed authorization header"), // Since prefix is not exactly "ApiKey"
 		},
