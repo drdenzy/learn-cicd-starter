@@ -27,8 +27,6 @@ jobs:
         uses: google-github-actions/auth@v2 # Authenticate with Google Cloud Platform
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }} # Use stored GCP service account credentials
-          # This authenticates the GitHub Actions workflow with GCP using the service account key.
-          # This service account needs permissions to push to Artifact Registry and potentially Cloud Run.
 
       - name: Set up gcloud CLI
         uses: google-github-actions/setup-gcloud@v2 # Install and configure gcloud CLI
@@ -48,6 +46,7 @@ jobs:
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker us-central1-docker.pkg.dev # Authenticate Docker with Artifact Registry
 
+
       - name: Build and Push Docker Image
         run: |
           gcloud builds submit --tag us-central1-docker.pkg.dev/notely-450615/notely-ar-repo/notely:latest --source=. --config cloudbuild.yaml
@@ -55,4 +54,5 @@ jobs:
           # The '--tag' flag specifies the target Artifact Registry repository and image name.
           # The '--source=.' flag explicitly sets the source directory to the current directory.  This is important!
           # The '--config cloudbuild.yaml' flag tells Cloud Build to use the cloudbuild.yaml file for the build configuration.
+
           
