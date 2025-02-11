@@ -27,6 +27,8 @@ jobs:
         uses: google-github-actions/auth@v2 # Authenticate with Google Cloud Platform
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }} # Use stored GCP service account credentials
+          # This authenticates the GitHub Actions workflow with GCP using the service account key.
+          # This service account needs permissions to push to Artifact Registry and potentially Cloud Run.
 
       - name: Set up gcloud CLI
         uses: google-github-actions/setup-gcloud@v2 # Install and configure gcloud CLI
@@ -37,17 +39,21 @@ jobs:
           SERVICE_ACCOUNT=$(gcloud auth list --filter=status:ACTIVE --format="value(account)") # Get active service account email
           
           # Grant Cloud Build service account necessary permissions for Cloud Storage
-          gsutil iam ch serviceAccount:${SERVICE_ACCOUNT}:objectCreator,objectViewer gs://notely-450615_cloudbuild
+          gsutil iam ch serviceAccount:${SERVICE_ACCOUNT}:objectCreator,objectViewer,roles/storage.bucketPolicyViewer gs://notely-450615_cloudbuild
           
           # This allows Cloud Build to upload and access the source code stored in the GCS bucket.
+          # The Cloud Build service account needs these permissions, NOT the service account from GCP_CREDENTIALS.
+          # The storage.bucketPolicyViewer is added to allow gsutil to check the bucket's IAM policy.
 
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker us-central1-docker.pkg.dev # Authenticate Docker with Artifact Registry
 
-        # Submit the source code to Cloud Build, which builds the Docker image and pushes it to Artifact Registry.
-        # The '--tag' flag specifies the target Artifact Registry repository and image name.
       - name: Build and Push Docker Image
         run: |
-          gcloud builds submit --tag us-central1-docker.pkg.dev/notely-450615/notely-ar-repo/notely:latest .
+          gcloud builds submit --tag us-central1-docker.pkg.dev/notely-450615/notely-ar-repo/notely:latest --source=. --config cloudbuild.yaml
+          # Submit the source code to Cloud Build, which builds the Docker image and pushes it to Artifact Registry.
+          # The '--tag' flag specifies the target Artifact Registry repository and image name.
+          # The '--source=.' flag explicitly sets the source directory to the current directory.  This is important!
+          # The '--config cloudbuild.yaml' flag tells Cloud Build to use the cloudbuild.yaml file for the build configuration.
           
 
