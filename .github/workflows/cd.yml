@@ -56,4 +56,3 @@ jobs:
           # The '--source=.' flag explicitly sets the source directory to the current directory.  This is important!
           # The '--config cloudbuild.yaml' flag tells Cloud Build to use the cloudbuild.yaml file for the build configuration.
           
-
