@@ -21,18 +21,18 @@ jobs:
       - name: Build App
         run: ./scripts/buildprod.sh
 
-      # Authenticate with GCP and set up gcloud CLI
+      # Authenticate with GCP using the service account key
+      - name: Authenticate with GCP
+        run: |
+          echo '${{ secrets.GCP_CREDENTIALS }}' > gcp-key.json
+          gcloud auth activate-service-account --key-file=gcp-key.json
+          gcloud auth list
+
+      # Set up gcloud CLI and configure project
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
         with:
-          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
           project_id: notely-450615
-
-      # Explicitly configure the active account
-      - name: Authenticate Account
-        run: |
-          gcloud auth list
-          gcloud config set account $(gcloud auth list --format="value(account)" --limit=1)
 
       # Configure Docker to use GCP credentials
       - name: Authenticate Docker
@@ -43,5 +43,9 @@ jobs:
         run: |-
           gcloud builds submit \
             --tag us-central1-docker.pkg.dev/notely-450615/notely-ar-repo/notely:latest .
+
+      # Cleanup credentials
+      - name: Cleanup
+        run: rm -f gcp-key.json
 
           
