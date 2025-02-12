@@ -29,3 +29,7 @@ notely
 
 ci-cd-github-action-notes.md
 sample-ci-cd.yaml
+
+# IDE
+.idea
+.vscode
