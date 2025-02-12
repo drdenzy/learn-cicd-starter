@@ -21,16 +21,24 @@ jobs:
       - name: Build App
         run: ./scripts/buildprod.sh
 
+      # Authenticate with GCP and set up gcloud CLI
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
           project_id: notely-450615
-          export_default_credentials: true  # Crucial for ADC
 
+      # Explicitly configure the active account
+      - name: Authenticate Account
+        run: |
+          gcloud auth list
+          gcloud config set account $(gcloud auth list --format="value(account)" --limit=1)
+
+      # Configure Docker to use GCP credentials
       - name: Authenticate Docker
-        run: gcloud auth configure-docker us-central1-docker.pkg.dev
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
+      # Build and push Docker image to Artifact Registry
       - name: Build and Push Docker Image
         run: |-
           gcloud builds submit \
