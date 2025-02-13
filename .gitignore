@@ -29,7 +29,9 @@ notely
 
 ci-cd-github-action-notes.md
 sample-ci-cd.yaml
-
+gcloud-cmds.md
+private-gcloud
+Github-Action-GCP.md
 # IDE
 .idea
 .vscode
