@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -40,21 +41,21 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 	})
 	if err != nil {
 		log.Println(err)
-		respondWithError(w, http.StatusInternalServerError, "Couldn't create user")
+		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Couldn't create user: %v", err))
 		return
 	}
 
 	user, err := cfg.DB.GetUser(r.Context(), apiKey)
 	if err != nil {
 		log.Println(err)
-		respondWithError(w, http.StatusInternalServerError, "Couldn't get user")
+		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Couldn't get user: %v", err))
 		return
 	}
 
 	userResp, err := databaseUserToUser(user)
 	if err != nil {
 		log.Println(err)
-		respondWithError(w, http.StatusInternalServerError, "Couldn't convert user")
+		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Couldn't convert user: %v", err))
 		return
 	}
 	respondWithJSON(w, http.StatusCreated, userResp)
